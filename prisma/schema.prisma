@@ -7,12 +7,19 @@ datasource db {
   provider = "sqlite"
 }
 
-// Справочник продуктов
+enum Category {
+  FIRST    // Первое (супы)
+  SECOND   // Второе (горячее)
+  DESSERT  // Десерт
+  DRINK    // Напиток
+}
+
 model Product {
   id        Int        @id @default(autoincrement())
   name      String     @unique
-  calories  Float      // ккал на 100г
-  mealItems MealItem[] 
+  calories  Float
+  category  Category   @default(SECOND) 
+  mealItems MealItem[]
 }
 
 // Дневной рацион
