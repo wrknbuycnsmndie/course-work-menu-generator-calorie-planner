@@ -20,7 +20,6 @@ import { Eye, Info } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
-// Описываем структуру данных, которую ожидаем (из Prisma)
 interface MealItemWithProduct {
   id: number;
   weight: number;
@@ -43,28 +42,36 @@ export function DayDetailsModal({ date, items }: Props) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant='ghost' size='sm' className='h-8 gap-2'>
+        <Button
+          variant='ghost'
+          size='sm'
+          className='h-8 gap-2 hover:bg-muted transition-colors'
+        >
           <Eye className='h-4 w-4' />
           Детали
         </Button>
       </DialogTrigger>
 
-      <DialogContent className='sm:max-w-[500px]'>
-        <DialogHeader>
-          <DialogTitle className='flex items-center gap-2'>
+      {/* Ограничиваем ширину и задаем flex для управления высотой */}
+      <DialogContent className='sm:max-w-[500px] max-h-[90vh] flex flex-col gap-0'>
+        <DialogHeader className='p-6 pb-2'>
+          <DialogTitle className='flex items-center gap-2 text-xl font-bold'>
             <Info className='h-5 w-5 text-primary' />
             Рацион за {format(date, 'd MMMM yyyy', { locale: ru })}
           </DialogTitle>
         </DialogHeader>
 
-        <div className='py-4'>
-          <div className='rounded-md border'>
+        {/* Контейнер с прокруткой. 
+          overflow-y-auto позволяет таблице скроллиться внутри модалки.
+        */}
+        <div className='flex-1 overflow-y-auto my-2 scrollbar-thin scrollbar-thumb-muted'>
+          <div className='rounded-md border overflow-hidden'>
             <Table>
-              <TableHeader>
-                <TableRow className='bg-muted/50'>
-                  <TableHead>Продукт</TableHead>
-                  <TableHead className='text-right'>Вес</TableHead>
-                  <TableHead className='text-right'>Ккал</TableHead>
+              <TableHeader className='sticky top-0 bg-secondary z-10'>
+                <TableRow className='hover:bg-transparent border-b'>
+                  <TableHead className='py-3'>Продукт</TableHead>
+                  <TableHead className='text-right py-3'>Вес</TableHead>
+                  <TableHead className='text-right py-3'>Ккал</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -72,7 +79,7 @@ export function DayDetailsModal({ date, items }: Props) {
                   <TableRow>
                     <TableCell
                       colSpan={3}
-                      className='text-center py-6 text-muted-foreground italic'
+                      className='text-center py-10 text-muted-foreground italic'
                     >
                       Записей за этот день нет
                     </TableCell>
@@ -83,11 +90,11 @@ export function DayDetailsModal({ date, items }: Props) {
                       (item.product.calories * item.weight) / 100
                     );
                     return (
-                      <TableRow key={item.id}>
-                        <TableCell className='font-medium'>
+                      <TableRow key={item.id} className='hover:bg-muted/50'>
+                        <TableCell className='font-medium max-w-[200px] truncate'>
                           {item.product.name}
                         </TableCell>
-                        <TableCell className='text-right'>
+                        <TableCell className='text-right text-muted-foreground'>
                           {item.weight} г
                         </TableCell>
                         <TableCell className='text-right font-semibold'>
@@ -98,10 +105,12 @@ export function DayDetailsModal({ date, items }: Props) {
                   })
                 )}
                 {items.length > 0 && (
-                  <TableRow className='bg-muted/30 font-bold'>
-                    <TableCell colSpan={2}>Итого за день:</TableCell>
-                    <TableCell className='text-right text-primary'>
-                      {totalCalories} ккал
+                  <TableRow className='bg-primary/5 font-bold sticky bottom-0 border-t-2'>
+                    <TableCell colSpan={2} className='py-4'>
+                      Итого за день:
+                    </TableCell>
+                    <TableCell className='text-right text-primary text-lg py-4'>
+                      {totalCalories}
                     </TableCell>
                   </TableRow>
                 )}
@@ -110,9 +119,10 @@ export function DayDetailsModal({ date, items }: Props) {
           </div>
         </div>
 
-        <div className='text-xs text-muted-foreground text-center italic'>
-          Все расчеты произведены на основе калорийности продуктов в справочнике
-          на момент записи.
+        <div className='p-4 border-t bg-muted/20'>
+          <p className='text-[10px] text-muted-foreground text-center italic leading-tight uppercase tracking-wider font-semibold opacity-70'>
+            Все расчеты произведены на основе справочных данных на момент записи
+          </p>
         </div>
       </DialogContent>
     </Dialog>
